@@ -1,0 +1,7 @@
+.card {
+    max-width: 350px;
+    padding: var(--ye-spacing-rem-small);
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    margin: 0 auto;
+  border-radius: var(--ye-radius-normal);
+}

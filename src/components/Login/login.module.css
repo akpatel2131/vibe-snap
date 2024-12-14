@@ -1,0 +1,52 @@
+.loginCard {
+    padding: 0;
+    max-height: 70vh;
+    max-width: 500px;
+}
+
+.loginImage {
+  width: var(--full-size);
+}
+
+.loginContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ye-spacing-rem-small);
+  align-items: center;
+  padding: var(--ye-spacing-rem-small) 0;
+  position: relative;
+  bottom: 120px;
+  background-color: #ffff;
+  width: var(--full-size);
+  z-index: 1;
+  border-radius: var(--ye-radius-huge) var(--ye-radius-huge) 0 0;
+  border: none;
+  min-height: 100px;
+}
+
+.loginTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--ye-spacing-tiny);
+  font-size: var(--ye-font-size-xlarge);
+  font-weight: var(--ye-font-weight-semibold);
+}
+
+.loginSubtitle {
+    font-size: var(--ye-font-size-small);
+}
+
+.loginButton {
+  display: flex;
+  gap: var(--ye-spacing-rem-small);
+  align-items: center;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  padding: var(--ye-spacing-rem-small) var(--ye-spacing-rem-large);
+  border-radius: var(--ye-radius-xhuge);
+  font-size: var(--ye-spacing-rem-small);
+  font-weight: var(--ye-font-weight-semibold);
+  margin-top: var(--ye-spacing-rem-large);
+  cursor: pointer;
+}

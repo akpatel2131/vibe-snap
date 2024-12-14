@@ -1,13 +1,70 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --full-size: 100%;
+
+  --ye-font-size-em: 1.2em;
+  --ye-font-size-mammoth: 2.488rem;
+  --ye-font-size-xhuge: 2.074rem;
+  --ye-font-size-huge: 1.728rem;
+  --ye-font-size-xlarge: 1.44rem;
+  --ye-font-size-large: 1.2rem;
+  --ye-font-size-normal: 1rem;
+  --ye-font-size-small: 0.833rem;
+  --ye-font-size-xsmall: 0.694rem;
+  --ye-font-size-tiny: 0.579rem;
+
+  /* weights */
+  --ye-font-weight-black: 700;
+  --ye-font-weight-bold: 600;
+  --ye-font-weight-semibold: 500;
+  --ye-font-weight-normal: 400;
+  --ye-font-weight-light: 300;
+  --ye-font-weight-thin: 200;
+
+  /* relative */
+  --ye-em-unit: 0.125em; /* 2px */
+  --ye-em-base: 1em;
+  --ye-spacing-em-tiny: calc(2 * var(--ye-em-unit));
+  --ye-spacing-em-xsmall: calc(4 * var(--ye-em-unit));
+  --ye-spacing-em-small: calc(6 * var(--ye-em-unit));
+  --ye-spacing-em-normal: var(--ye-em-base);
+  --ye-spacing-em-large: calc(10 * var(--ye-em-unit));
+  --ye-spacing-em-xlarge: calc(12 * var(--ye-em-unit));
+  --ye-spacing-em-huge: calc(16 * var(--ye-em-unit));
+  --ye-spacing-em-xhuge: calc(20 * var(--ye-em-unit));
+
+  /* fixed */
+  --ye-rem-unit: 0.125rem;
+  --ye-rem-base: 1rem;
+  --ye-spacing-rem-tiny: calc(2 * var(--ye-rem-unit));
+  --ye-spacing-rem-xsmall: calc(4 * var(--ye-rem-unit));
+  --ye-spacing-rem-small: calc(6 * var(--ye-rem-unit));
+  --ye-spacing-rem-normal: var(--ye-rem-base);
+  --ye-spacing-rem-large: calc(10 * var(--ye-rem-unit));
+  --ye-spacing-rem-xlarge: calc(12 * var(--ye-rem-unit));
+  --ye-spacing-rem-huge: calc(16 * var(--ye-rem-unit));
+  --ye-spacing-rem-xhuge: calc(20 * var(--ye-rem-unit));
+  --ye-spacing-rem-giant: calc(24 * var(--ye-rem-unit));
+
+  /* radii */
+  --ye-radius-tiny: var(--ye-em-unit);
+  --ye-radius-small: var(--ye-spacing-em-tiny);
+  --ye-radius-normal: var(--ye-spacing-em-xsmall);
+  --ye-radius-large: var(--ye-spacing-em-small);
+  --ye-radius-xlarge: var(--ye-spacing-em-normal);
+  --ye-radius-huge: var(--ye-spacing-em-xlarge);
+  --ye-radius-xhuge: var(--ye-spacing-em-xhuge);
+  --ye-radius-circle: 100%;
+  --ye-radius-ellipse: 50%;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
