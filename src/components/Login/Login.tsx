@@ -3,14 +3,15 @@ import vibeSnapLogin from "../../images/vibe-snap-login.svg";
 import vibeSnapLogo from "../../images/vibe-snap-logo.svg";
 import googleLogo from "../../images/google.svg";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import {useUser} from "../ContextApi/UserContext";
+import { useContexData } from "../ContextApi/ContextApi";
 import { auth } from "../UiComponents/FireBase";
 import styles from "./login.module.css";
 import { useNavigate } from "react-router-dom";
+import { use } from "react";
 
 export default function Login() {
-    const { setUser } = useUser();
-    const navigate = useNavigate();
+  const { setUser, addUserData } = useContexData();
+  const navigate = useNavigate();
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider(); // Create a Google Auth Provider
     try {
@@ -20,11 +21,17 @@ export default function Login() {
       const userData = {
         displayName: user.displayName,
         email: user.email,
-        authToken: user.uid
-      }
+        authToken: user.uid,
+      };
+
+      addUserData({
+        email: user.email ?? "",
+        username: user.displayName ?? "",
+        photo:""
+      })
 
       setUser(userData);
-      navigate("./home")
+      navigate("./home");
     } catch (error: any) {
       console.error("Error during Google login:", error.message);
     }
