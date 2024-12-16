@@ -53,7 +53,7 @@ export default function FeedCards({
     await handleLikes(data.docId, data.likes);
   }, []);
 
-  const isLiked = data.likes.includes(user?.authToken ?? "");
+  const isLiked = data.likes.includes(user?.userId ?? "");
 
   return (
     <>
@@ -63,7 +63,7 @@ export default function FeedCards({
       >
         <div className={styles.feedHeader}>
           {data.photo ? (
-            <img src={data.photo} className={styles.feedUserImage} />
+            <img src={data.photo[0]} className={styles.feedUserImage} />
           ) : (
             <div className={styles.userFirstLetter}>
               {data.username.split("")[0]}

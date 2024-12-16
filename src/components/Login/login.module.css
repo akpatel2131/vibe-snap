@@ -43,11 +43,9 @@
   align-items: center;
   background-color: #000;
   color: #fff;
-  border: none;
   padding: var(--ye-spacing-rem-small) var(--ye-spacing-rem-large);
   border-radius: var(--ye-radius-xhuge);
   font-size: var(--ye-spacing-rem-small);
   font-weight: var(--ye-font-weight-semibold);
-  margin-top: var(--ye-spacing-rem-large);
-  cursor: pointer;
+  margin-top: var(--ye-spacing-rem-large); 
 }

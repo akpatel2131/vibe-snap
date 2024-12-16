@@ -2,13 +2,11 @@
 .button {
     background-color: #000;
     color: #fff;
-    border: none;
     padding: var(--ye-spacing-rem-xsmall) var(--ye-spacing-rem-large);
     min-width: 300px;
     font-size: var(--ye-font-size-normal);
     border-radius: var(--ye-radius-huge);
     margin: 0 auto;
-    cursor: pointer;
 }
 
 .isDisabled {

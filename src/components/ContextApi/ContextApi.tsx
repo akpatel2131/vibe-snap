@@ -5,7 +5,7 @@ import {
   useContext,
   useState,
 } from "react";
-import { auth, db } from "../UiComponents/FireBase";
+import { db } from "../UiComponents/FireBase";
 import {
   collection,
   addDoc,
@@ -19,18 +19,17 @@ import {
   updateDoc,
   arrayUnion,
 } from "firebase/firestore";
+import Resizer from "react-image-file-resizer";
 
 // Define the type for the user object (customize according to your user data structure)
-interface User {
-  displayName: string | null;
-  email: string | null;
-  authToken: string | null;
-}
 
 interface UserData {
   email: string;
   username: string;
   photo: string;
+  bio_photo: string;
+  bio_discription: string;
+  userId?: string;
 }
 
 interface PostData {
@@ -47,19 +46,25 @@ export interface FeedData extends PostData, UserData {
 
 // Define the type for the context value
 interface UserContextType {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  user: UserData | null;
+  setUser: React.Dispatch<React.SetStateAction<UserData | null>>;
   postData: FeedData[];
   setPostData: React.Dispatch<React.SetStateAction<FeedData[]>>;
   selectedFiles: string[];
   setSelectedFiles: React.Dispatch<React.SetStateAction<string[]>>;
   handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleProfileImageUpload: (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => void;
   generateVideoThumbnail: (file: File) => void;
   fileType: string;
   addUserData: (value: UserData) => void;
+  updateUserData: (value: UserData) => void;
+  getUserById: (value: string) => Promise<UserData | null>;
   addPost: (value: PostData) => void;
   fetchAllPosts: () => Promise<FeedData[] | undefined>;
-  fetchPostsByUser: (value: string) => Promise<FeedData[] | undefined>;
+  fetchPostsByUser: () => Promise<FeedData[] | undefined>;
   handleLikes: (postId: string, likes: string[]) => void;
 }
 
@@ -68,7 +73,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // UserContext Provider component
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserData | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [fileType, setFileType] = useState<string>("");
   const [postData, setPostData] = useState<FeedData[]>([]);
@@ -136,6 +141,117 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     [generateVideoThumbnail, setFileType, setSelectedFiles]
   );
 
+  // const uploadImageToStorage = useCallback(
+  //   async (file: File, path: string): Promise<string> => {
+  //     try {
+  //       const storage = getStorage();
+  //       const storageRef = ref(storage, `${path}/${file.name}`); // Use file name in the path
+  //       await uploadBytes(storageRef, file); // Upload the file to Firebase Storage
+  //       const downloadURL = await getDownloadURL(storageRef); // Get the public URL
+  //       return downloadURL; // Return the URL for Firestore or state
+  //     } catch (error) {
+  //       console.error("Error uploading image to Firebase Storage:", error);
+  //       throw error;
+  //     }
+  //   },
+  //   []
+  // );
+
+  // const handleProfileImageUpload = useCallback(
+  //   async (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
+  //     const files = event.target.files;
+
+  //     if (!files) {
+  //       console.error("No files selected.");
+  //       return;
+  //     }
+
+  //     // Upload each file
+  //     for (const file of Array.from(files)) {
+  //       if (!file.type.startsWith("image/")) {
+  //         console.error("File is not an image.");
+  //         return;
+  //       }
+
+  //       try {
+  //         // Upload image to Firebase Storage based on type
+  //         const filePath =
+  //           type === "profile"
+  //             ? `users/${user?.userId}/profile`
+  //             : `users/${user?.userId}/bio`;
+  //         const downloadURL = await uploadImageToStorage(file, filePath);
+
+  //         // Update user object based on the type
+  //         if (type === "profile" && user) {
+  //           setUser({
+  //             ...user,
+  //             photo: downloadURL,
+  //           });
+  //         } else if (type === "bio" && user) {
+  //           setUser({
+  //             ...user,
+  //             bio_photo: downloadURL,
+  //           });
+  //         }
+
+  //         console.log(`${type} image uploaded successfully.`);
+  //       } catch (error) {
+  //         console.error(`Error uploading ${type} image:`, error);
+  //       }
+  //     }
+  //   },
+  //   [user]
+  // );
+
+const handleProfileImageUpload = useCallback(
+  (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
+    const files = event.target.files;
+
+    if (!files) {
+      console.error("No files selected.");
+      return;
+    }
+
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/")) {
+        console.error("File is not an image.");
+        return;
+      }
+
+      try {
+        // Resize image and convert to Base64
+        Resizer.imageFileResizer(
+          file,
+          300, // maxWidth
+          300, // maxHeight
+          "JPEG", // format
+          70, // quality
+          0, // rotation
+          (uri) => {
+            // Handle resized image URI (base64)
+            if (type === "profile" && user) {
+              setUser({
+                ...user,
+                photo: uri.toString(),
+              });
+            } else if (type === "bio" && user) {
+              setUser({
+                ...user,
+                bio_photo: uri.toString(),
+              });
+            }
+          },
+          "base64" // Output type
+        );
+      } catch (error) {
+        console.error("Error resizing image:", error);
+      }
+    });
+  },
+  [user]
+);
+
+
   const fetchUserByUUID = useCallback(async (userId: string) => {
     try {
       // Reference to the specific user's document in the "users" collection
@@ -159,15 +275,40 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const getUserById = useCallback(async (userId: string) => {
+    try {
+      if (!userId) {
+        console.error("User ID is required.");
+        return null;
+      }
+
+      // Create a reference to the user document
+      const userDocRef = doc(db, "users", userId);
+
+      // Fetch the document
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        console.log("User data retrieved:", userDoc.data());
+        return userDoc.data() as UserData; // Return user data
+      } else {
+        console.error("No user found with the given ID.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching user data: ", error);
+      return null;
+    }
+  }, []);
+
   const addUserData = useCallback(
-    async (data: { email: string; username: string; photo: string }) => {
+    async (data: UserData) => {
       try {
-        const userData = auth.currentUser;
-        if (userData) {
-          const userId = userData.uid;
-          await setDoc(doc(db, "users", userId), {
+        const id = user?.userId;
+        if (id) {
+          await setDoc(doc(db, "users", id), {
             ...data,
-            userId,
+            userId: id,
             createdAt: new Date().toISOString(),
           });
           console.log("Data added successfully!");
@@ -178,15 +319,38 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         console.error("Error adding document: ", error);
       }
     },
-    []
+    [user]
+  );
+
+  const updateUserData = useCallback(
+    async (data: UserData) => {
+      try {
+        const id = user?.userId; // Ensure `user` has the user ID
+        if (id) {
+          const userDocRef = doc(db, "users", id);
+
+          // Update the document in Firestore
+          await updateDoc(userDocRef, {
+            ...data,
+            updatedAt: new Date().toISOString(), // Track the update timestamp
+          });
+          console.log("User data updated successfully!");
+        } else {
+          console.error("No user is logged in");
+        }
+      } catch (error) {
+        console.error("Error updating document: ", error);
+      }
+    },
+    [user]
   );
 
   const addPost = useCallback(
     async (post: PostData) => {
       try {
-        const userData = auth.currentUser;
-        if (userData) {
-          const fetchUser = await fetchUserByUUID(userData.uid);
+        const id = user?.userId;
+        if (id) {
+          const fetchUser = await fetchUserByUUID(id);
           const newPost = {
             ...post,
             email: fetchUser?.email,
@@ -205,7 +369,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         console.error("Error adding post: ", error);
       }
     },
-    [fetchUserByUUID]
+    [fetchUserByUUID, user]
   );
 
   const fetchAllPosts = useCallback(async () => {
@@ -222,13 +386,22 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const fetchPostsByUser = useCallback(async (userId: string) => {
+  const fetchPostsByUser = useCallback(async () => {
     try {
+      console.log({ user });
+      const userId = user?.userId;
+      console.log({ userId });
+      if (!userId) {
+        return [];
+      }
       const postsQuery = query(
         collection(db, "posts"),
-        where("userID", "==", userId)
+        where("userId", "==", userId)
       );
+      console.log({ postsQuery });
       const querySnapshot = await getDocs(postsQuery);
+
+      console.log({ querySnapshot });
       const posts: object[] = [];
       querySnapshot.forEach((doc) => {
         posts.push({ docId: doc.id, ...doc.data() });
@@ -238,51 +411,54 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     } catch (error) {
       console.error("Error fetching posts by user: ", error);
     }
-  }, []);
+  }, [user]);
 
-  const handleLikes = useCallback(async (postId: string, likes: string[]) => {
-    try {
-      console.log("ref");
-      const postRef = doc(db, "posts", postId);
-      const currentUserId = auth.currentUser?.uid;
-      console.log({ currentUserId });
-      if (!currentUserId) return;
-      if (likes.includes(currentUserId)) {
-        await updateDoc(postRef, {
-          likes: arrayRemove(currentUserId),
-        });
-        const data = postData.map((item) => {
-          if (item.docId === postId) {
-            return {
-              ...item,
-              likes: item.likes.filter((id) => id !== currentUserId),
-            };
-          }
-          return item;
-        });
+  const handleLikes = useCallback(
+    async (postId: string, likes: string[]) => {
+      try {
+        console.log("ref");
+        const postRef = doc(db, "posts", postId);
+        const currentUserId = user?.userId;
+        console.log({ currentUserId });
+        if (!currentUserId) return;
+        if (likes.includes(currentUserId)) {
+          await updateDoc(postRef, {
+            likes: arrayRemove(currentUserId),
+          });
+          const data = postData.map((item) => {
+            if (item.docId === postId) {
+              return {
+                ...item,
+                likes: item.likes.filter((id) => id !== currentUserId),
+              };
+            }
+            return item;
+          });
 
-        setPostData(data);
-      } else {
-        await updateDoc(postRef, {
-          likes: arrayUnion(currentUserId),
-        });
+          setPostData(data);
+        } else {
+          await updateDoc(postRef, {
+            likes: arrayUnion(currentUserId),
+          });
 
-        const data = postData.map((item) => {
-          if (item.docId === postId) {
-            return {
-              ...item,
-              likes: [...item.likes, currentUserId],
-            };
-          }
-          return item;
-        });
+          const data = postData.map((item) => {
+            if (item.docId === postId) {
+              return {
+                ...item,
+                likes: [...item.likes, currentUserId],
+              };
+            }
+            return item;
+          });
 
-        setPostData(data);
+          setPostData(data);
+        }
+      } catch (error) {
+        console.error("Error updating likes: ", error);
       }
-    } catch (error) {
-      console.error("Error updating likes: ", error);
-    }
-  }, []);
+    },
+    [user]
+  );
 
   const methods = {
     user,
@@ -292,9 +468,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     selectedFiles,
     setSelectedFiles,
     handleFileChange,
+    handleProfileImageUpload,
     generateVideoThumbnail,
     fileType,
     addUserData,
+    updateUserData,
+    getUserById,
     addPost,
     fetchAllPosts,
     fetchPostsByUser,

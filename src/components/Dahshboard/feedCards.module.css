@@ -49,13 +49,10 @@
 
 .likeButton,
 .sendButton {
-  background-color: transparent;
   display: flex;
   gap: var(--ye-spacing-rem-tiny);
   align-items: center;
-  border: none;
   box-shadow: none;
-  cursor: pointer;
 }
 
 .likeButton:hover {

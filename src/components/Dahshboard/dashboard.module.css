@@ -28,8 +28,6 @@
     border: 1px solid #000;
     border-radius: var(--ye-radius-huge);
     padding: var(--ye-spacing-rem-tiny) var(--ye-spacing-rem-small);
-    background-color: transparent;
-    cursor: pointer;
 }
 
 .createButton:hover {

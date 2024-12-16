@@ -20,10 +20,7 @@
     flex-direction: row;
     gap: var(--ye-spacing-rem-xsmall);
     font-weight: var(--ye-font-weight-semibold);
-    background-color: transparent;
-    border: none;
     box-shadow: none;
-    cursor: pointer;
 }
 
 .uploadContainer {

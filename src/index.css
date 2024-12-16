@@ -61,14 +61,20 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
-  padding: var(--ye-spacing-rem-normal) var(--ye-spacing-rem-xhuge);
+  /* padding: var(--ye-spacing-rem-normal) var(--ye-spacing-rem-xhuge); */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+body button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
 @media only screen and (width <= 600px) {
   body {
-    padding: var(--ye-spacing-rem-normal);
+    /* padding: var(--ye-spacing-rem-normal); */
   }
 }
 

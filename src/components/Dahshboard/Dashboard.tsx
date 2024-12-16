@@ -36,13 +36,13 @@ export default function Dashboard() {
   return (
     <div className={styles.dashboardContainer}>
       <div className={styles.topNav}>
-        <div className={styles.userInfo}>
-          <img src={userPhoto} className={styles.userPhoto} />
+        <button className={styles.userInfo} onClick={() => navigate("/profile")}>
+          <img src={user?.photo || userPhoto} className={styles.userPhoto} />
           <div>
             <div className={styles.welcomeNote}>Welcome Back</div>
-            <div className={styles.username}>{user?.displayName}</div>
+            <div className={styles.username}>{user?.username}</div>
           </div>
-        </div>
+        </button>
         <button
           className={styles.createButton}
           onClick={() => navigate("/create-post")}

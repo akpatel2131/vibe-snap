@@ -1,0 +1,90 @@
+.profileContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ye-spacing-rem-small);
+}
+
+.editProfileButton {
+  align-self: flex-end;
+  padding: var(--ye-spacing-rem-xsmall) var(--ye-spacing-rem-xhuge);
+  border: 1px solid black;
+  border-radius: var(--ye-radius-huge);
+  width: 200px;
+}
+
+.profileInfoWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ye-spacing-rem-xlarge);
+    padding: 0 var(--ye-spacing-rem-huge);
+}
+
+.profileUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ye-spacing-rem-xsmall);
+}
+
+.username {
+  font-size: var(--ye-font-size-xlarge);
+  font-weight: var(--ye-font-weight-black);
+}
+
+.userFeedContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ye-spacing-rem-normal);
+}
+
+.myPostTitle {
+  font-size: var(--ye-font-size-large);
+  font-weight: var(--ye-font-weight-semibold);
+}
+
+.postContainer {
+  display: flex;
+  gap: var(--ye-spacing-rem-tiny);
+  flex-wrap: wrap;
+}
+
+.userFeedBox {
+  max-width: 160px;
+  height: auto;
+  position: relative;
+}
+
+.feedImage {
+  width: var(--full-size);
+  border-radius: var(--ye-radius-large);
+  height: 200px;
+  object-fit: cover;
+}
+
+.likeButton {
+  display: flex;
+  gap: var(--ye-spacing-rem-tiny);
+  align-items: center;
+  box-shadow: none;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  color: #a2a3a2;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.pagesNumber {
+  position: absolute;
+  right: var(--ye-font-size-tiny);
+  top: var(--ye-font-size-tiny);
+  color: #fff;
+  background-color: #000;
+  padding: var(--ye-spacing-rem-tiny) var(--ye-spacing-rem-small);
+  border-radius: var(--ye-radius-huge);
+  font-size: var(--ye-font-size-xsmall);
+  font-weight: var(--ye-font-weight-semibold);
+  z-index: 10;
+}

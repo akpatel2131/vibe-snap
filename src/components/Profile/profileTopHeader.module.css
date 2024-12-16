@@ -1,0 +1,79 @@
+.profileImageContainer {
+    position: relative;
+    width: var(--full-size);
+}
+
+.userBioBox, .userPhoto {
+    position: relative;
+}
+
+.bioImage {
+    width: var(--full-size);
+    height: 200px;
+    object-fit: cover;
+}
+
+.userPhotoBox {
+    position: absolute;
+    z-index: 1;
+    bottom: -20%;
+    left: 30px;
+}
+
+.userImage {
+    width: 90px;
+    height: 90px;
+    border-radius: var(--ye-radius-circle);
+}
+
+.editButton {
+    border-radius: var(--ye-radius-circle);
+    padding: var(--ye-spacing-rem-tiny);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    background-color: #cdcfd1;
+}
+
+.editIcon {
+   stroke-width: 1;
+   width: 16px;
+   height: 16px; 
+}
+
+.bioEdit {
+    right: 20px;
+    bottom: 20px;
+}
+
+.profileEdit {
+    right: -5px;
+    bottom: 5px;
+}
+
+.backButton {
+    padding: 0;
+    height: 25px;
+}
+
+.backIcon {
+    stroke-width: 2;
+    width: 25px;
+    height: 25px;
+    color: #fff;
+}
+
+.profileHeader {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+    display: flex;
+    gap: var(--ye-spacing-rem-tiny);
+    align-items: center;
+    color: #fff;
+    font-weight: var(--ye-font-weight-black);
+}

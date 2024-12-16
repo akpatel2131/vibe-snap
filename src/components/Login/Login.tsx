@@ -7,10 +7,9 @@ import { useContexData } from "../ContextApi/ContextApi";
 import { auth } from "../UiComponents/FireBase";
 import styles from "./login.module.css";
 import { useNavigate } from "react-router-dom";
-import { use } from "react";
 
 export default function Login() {
-  const { setUser, addUserData } = useContexData();
+  const { setUser, addUserData, getUserById } = useContexData();
   const navigate = useNavigate();
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider(); // Create a Google Auth Provider
@@ -18,19 +17,42 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider); // Sign in with Google popup
       const user = result.user;
 
-      const userData = {
-        displayName: user.displayName,
-        email: user.email,
-        authToken: user.uid,
+      const existingUserData = await getUserById(user.uid);
+
+      let userData = {
+        username: user.displayName ?? "",
+        email: user.email ?? "",
+        userId: user.uid ?? "",
+        photo: "",
+        bio_photo: "",
+        bio_discription: "",
       };
 
-      addUserData({
-        email: user.email ?? "",
-        username: user.displayName ?? "",
-        photo:""
-      })
+      if (existingUserData) {
+        userData = {
+          ...existingUserData,
+          photo: existingUserData.photo,
+          bio_photo: existingUserData.photo,
+          userId: existingUserData.userId ?? "",
+        };
+      } else {
+        addUserData({
+          email: user.email ?? "",
+          username: user.displayName ?? "",
+          photo: "",
+          bio_photo: "",
+          bio_discription: "",
+        });
+      }
 
       setUser(userData);
+      localStorage.setItem("userId", userData.userId);
+      localStorage.setItem("username", userData.username || "");
+      localStorage.setItem("email", userData.email || "");
+      localStorage.setItem("photo", userData.photo || "");
+      localStorage.setItem("bio_photo", userData.bio_photo || "");
+      localStorage.setItem("bio_discription", userData.bio_discription || "");
+
       navigate("./home");
     } catch (error: any) {
       console.error("Error during Google login:", error.message);
