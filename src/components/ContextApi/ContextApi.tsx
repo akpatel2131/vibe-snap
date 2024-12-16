@@ -15,6 +15,9 @@ import {
   getDoc,
   doc,
   setDoc,
+  arrayRemove,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 
 // Define the type for the user object (customize according to your user data structure)
@@ -46,6 +49,8 @@ export interface FeedData extends PostData, UserData {
 interface UserContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  postData: FeedData[];
+  setPostData: React.Dispatch<React.SetStateAction<FeedData[]>>;
   selectedFiles: string[];
   setSelectedFiles: React.Dispatch<React.SetStateAction<string[]>>;
   handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -55,6 +60,7 @@ interface UserContextType {
   addPost: (value: PostData) => void;
   fetchAllPosts: () => Promise<FeedData[] | undefined>;
   fetchPostsByUser: (value: string) => Promise<FeedData[] | undefined>;
+  handleLikes: (postId: string, likes: string[]) => void;
 }
 
 // Create the User Context
@@ -65,6 +71,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
   const [fileType, setFileType] = useState<string>("");
+  const [postData, setPostData] = useState<FeedData[]>([]);
 
   const generateVideoThumbnail = useCallback(
     (file: File): Promise<string | null> => {
@@ -150,7 +157,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error fetching user by UUID:", error);
       throw error;
     }
-  },[]);
+  }, []);
 
   const addUserData = useCallback(
     async (data: { email: string; username: string; photo: string }) => {
@@ -174,35 +181,32 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     []
   );
 
-  const addPost = useCallback(async(post: PostData) => {
-    try {
+  const addPost = useCallback(
+    async (post: PostData) => {
+      try {
+        const userData = auth.currentUser;
+        if (userData) {
+          const fetchUser = await fetchUserByUUID(userData.uid);
+          const newPost = {
+            ...post,
+            email: fetchUser?.email,
+            username: fetchUser?.username,
+            photo: fetchUser?.photo,
+            userId: fetchUser?.userId,
+            createdAt: new Date().toISOString(),
+          };
 
-      const userData = auth.currentUser;
-      if (userData) {
-        const fetchUser = await fetchUserByUUID(userData.uid)
-        const newPost = {
-          ...post,
-          email: fetchUser?.email,
-          username: fetchUser?.username,
-          photo: fetchUser?.photo,
-          userId: fetchUser?.userId,  
-          createdAt: new Date().toISOString(),
-        };
-
-        // Add post to Firestor
-
-        console.log({newPost})
-
-
-        await addDoc(collection(db, "posts"), newPost);
-        console.log("Post added successfully!");
-      } else {
-        console.error("No user is logged in");
+          await addDoc(collection(db, "posts"), newPost);
+          console.log("Post added successfully!");
+        } else {
+          console.error("No user is logged in");
+        }
+      } catch (error) {
+        console.error("Error adding post: ", error);
       }
-    } catch (error) {
-      console.error("Error adding post: ", error);
-    }
-  }, [fetchUserByUUID]);
+    },
+    [fetchUserByUUID]
+  );
 
   const fetchAllPosts = useCallback(async () => {
     try {
@@ -225,20 +229,66 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         where("userID", "==", userId)
       );
       const querySnapshot = await getDocs(postsQuery);
-      const posts : object[]= [];
+      const posts: object[] = [];
       querySnapshot.forEach((doc) => {
         posts.push({ docId: doc.id, ...doc.data() });
       });
       console.log("Posts by User:", posts);
-      return posts as FeedData[]
+      return posts as FeedData[];
     } catch (error) {
       console.error("Error fetching posts by user: ", error);
     }
-  },[])
+  }, []);
+
+  const handleLikes = useCallback(async (postId: string, likes: string[]) => {
+    try {
+      console.log("ref");
+      const postRef = doc(db, "posts", postId);
+      const currentUserId = auth.currentUser?.uid;
+      console.log({ currentUserId });
+      if (!currentUserId) return;
+      if (likes.includes(currentUserId)) {
+        await updateDoc(postRef, {
+          likes: arrayRemove(currentUserId),
+        });
+        const data = postData.map((item) => {
+          if (item.docId === postId) {
+            return {
+              ...item,
+              likes: item.likes.filter((id) => id !== currentUserId),
+            };
+          }
+          return item;
+        });
+
+        setPostData(data);
+      } else {
+        await updateDoc(postRef, {
+          likes: arrayUnion(currentUserId),
+        });
+
+        const data = postData.map((item) => {
+          if (item.docId === postId) {
+            return {
+              ...item,
+              likes: [...item.likes, currentUserId],
+            };
+          }
+          return item;
+        });
+
+        setPostData(data);
+      }
+    } catch (error) {
+      console.error("Error updating likes: ", error);
+    }
+  }, []);
 
   const methods = {
     user,
     setUser,
+    postData,
+    setPostData,
     selectedFiles,
     setSelectedFiles,
     handleFileChange,
@@ -248,6 +298,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     addPost,
     fetchAllPosts,
     fetchPostsByUser,
+    handleLikes,
   };
 
   return (
