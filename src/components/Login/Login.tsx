@@ -7,6 +7,7 @@ import { useContexData } from "../ContextApi/ContextApi";
 import { auth } from "../UiComponents/FireBase";
 import styles from "./login.module.css";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const { setUser, addUserData, getUserById } = useContexData();
@@ -52,10 +53,10 @@ export default function Login() {
       localStorage.setItem("photo", userData.photo || "");
       localStorage.setItem("bio_photo", userData.bio_photo || "");
       localStorage.setItem("bio_discription", userData.bio_discription || "");
-
-      navigate("./home");
+      navigate("/");
+      toast.success(`Successfully login`)
     } catch (error: any) {
-      console.error("Error during Google login:", error.message);
+      toast.error(`Error during Google login:, ${error.message}`)
     }
   };
   return (

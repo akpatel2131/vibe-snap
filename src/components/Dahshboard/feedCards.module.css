@@ -4,8 +4,7 @@
   gap: var(--ye-spacing-rem-small);
   padding: var(--ye-spacing-rem-large);
   border-radius: var(--ye-radius-large);
-  max-width: 300px;
-  flex: 1;
+  width: var(--ye-width-normal);
   justify-content: space-between;
 }
 
@@ -19,6 +18,21 @@
 .feed {
   display: flex;
   gap: var(--ye-spacing-rem-xsmall);
+  position: relative;
+}
+
+.playIcon {
+  position: absolute;
+  z-index: 10;
+  width: 30px;
+  height: 30px;
+  color: var(--color-canvas);
+  top:  40%;
+  left: 40%;
+  cursor: pointer;
+  padding: var(--ye-spacing-rem-small);
+  background-color: rgba(179, 176, 178, 0.5);
+  border-radius: var(--ye-radius-circle);
 }
 
 .feedHeader {
@@ -32,7 +46,7 @@
   width: 12px;
   height: 12px;
   background-color: #b50724;
-  color: #fff;
+  color: var(--color-canvas);
   font-weight: var(--ye-font-weight-semibold);
   border-radius: var(--ye-radius-circle);
   display: flex;
@@ -68,8 +82,8 @@
 }
 
 .sendButton:hover {
-  background-color: #000;
-  color: #fff;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
 }
 
 .icon {
@@ -93,4 +107,11 @@
 
 .feedDiscription {
     font-size: var(--ye-font-size-small); 
+}
+
+.feedUserImage {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ye-radius-circle);
+  overflow: hidden;
 }

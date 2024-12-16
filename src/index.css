@@ -19,6 +19,14 @@ body {
   --ye-font-weight-light: 300;
   --ye-font-weight-thin: 200;
 
+  /* width */
+  --ye-width-tiny: 50px;
+  --ye-width-xsmall: 100px;
+  --ye-width-small: 150px;
+  --ye-width-normal: 300px;
+  --ye-width-large: 350px;
+  --ye-width-huge: 500px;
+
   /* relative */
   --ye-em-unit: 0.125em; /* 2px */
   --ye-em-base: 1em;
@@ -56,12 +64,18 @@ body {
   --ye-radius-ellipse: 50%;
 
 
+  /* color */
+
+  --color-canvas: #fff;
+  --color-ink: #000;
+
+
+
   margin: 0;
   height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
-  /* padding: var(--ye-spacing-rem-normal) var(--ye-spacing-rem-xhuge); */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -70,12 +84,6 @@ body button {
   background-color: transparent;
   border: none;
   cursor: pointer;
-}
-
-@media only screen and (width <= 600px) {
-  body {
-    /* padding: var(--ye-spacing-rem-normal); */
-  }
 }
 
 code {

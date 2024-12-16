@@ -37,3 +37,13 @@
     transform: rotate(360deg);
   }
 }
+
+.container {
+  padding: var(--ye-spacing-rem-normal) var(--ye-spacing-rem-huge);
+}
+
+@media only screen and (width <= 600px) {
+  .container {
+    padding: var(--ye-spacing-rem-normal);
+  }
+}

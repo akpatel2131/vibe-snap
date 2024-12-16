@@ -12,7 +12,7 @@
     padding: var(--ye-spacing-rem-large);
     border-radius: var(--ye-radius-huge);
     resize: none;
-    min-height: 300px;
+    min-height: var(--ye-width-normal);
 }
 
 .uploadButton {
@@ -32,6 +32,6 @@
 
 @media screen and (width <= 600px) {
     .feedTextInput {
-        width: 300px;
+        width: var(--ye-width-normal);
     }
 }

@@ -26,7 +26,7 @@ export default function Feed() {
       };
       await addPost(filesData);
       setSelectedFiles([]);
-      navigate("/home")
+      navigate("/")
     } finally {
       setLoading(false);
     }
@@ -35,7 +35,7 @@ export default function Feed() {
   return (
     <div className={styles.createFeedContainer}>
       <div className={styles.headerContainer}>
-        <button className={styles.backButton} onClick={() => navigate("/home")}>
+        <button className={styles.backButton} onClick={() => navigate("/")}>
           <IconArrowLeft stroke={2} className={styles.backIcon} />
         </button>
         <div className={styles.newFeedTitle}>New Feed</div>

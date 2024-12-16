@@ -26,7 +26,7 @@ export default function ProfileTopHeader({ isEdit }: { isEdit: boolean }) {
           className={styles.backButton}
           onClick={() => {
             if (isEdit) navigate("/profile");
-            else navigate("/home");
+            else navigate("/");
           }}
         >
           <IconArrowLeft stroke={2} className={styles.backIcon} />

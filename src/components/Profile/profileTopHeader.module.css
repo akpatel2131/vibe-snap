@@ -40,8 +40,8 @@
 
 .editIcon {
    stroke-width: 1;
-   width: 16px;
-   height: 16px; 
+   width: var(--ye-font-size-normal);
+   height: var(--ye-font-size-normal); 
 }
 
 .bioEdit {
@@ -63,17 +63,17 @@
     stroke-width: 2;
     width: 25px;
     height: 25px;
-    color: #fff;
+    color: var(--color-canvas);
 }
 
 .profileHeader {
     position: absolute;
-    top: 16px;
-    left: 16px;
+    top: var(--ye-font-size-normal);
+    left: var(--ye-font-size-normal);
     z-index: 10;
     display: flex;
     gap: var(--ye-spacing-rem-tiny);
     align-items: center;
-    color: #fff;
+    color: var(--color-canvas);
     font-weight: var(--ye-font-weight-black);
 }

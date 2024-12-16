@@ -1,9 +1,15 @@
-import { IconHeart, IconHeartFilled, IconSend } from "@tabler/icons-react";
+import {
+  IconHeart,
+  IconHeartFilled,
+  IconPlayerPlay,
+  IconPlayerPlayFilled,
+  IconSend,
+} from "@tabler/icons-react";
 import { FeedData, useContexData } from "../ContextApi/ContextApi";
 import Cards from "../UiComponents/Cards";
 import { clsx } from "clsx";
 import styles from "./feedCards.module.css";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import SharePostModal from "./SharePostModal";
 
 const COLOR_PALLET = [
@@ -51,9 +57,29 @@ export default function FeedCards({
 
   const handlePostLike = useCallback(async () => {
     await handleLikes(data.docId, data.likes);
-  }, []);
+  }, [handleLikes]);
 
   const isLiked = data.likes.includes(user?.userId ?? "");
+
+  const likeButton = useMemo(() => {
+    return (
+      <button
+        className={clsx(styles.likeButton, {
+          [styles.isLiked]: isLiked,
+        })}
+        onClick={() => {
+          handlePostLike();
+        }}
+      >
+        {isLiked ? (
+          <IconHeartFilled className={styles.icon} />
+        ) : (
+          <IconHeart className={styles.icon} />
+        )}
+        {data.likes.length}
+      </button>
+    );
+  }, [data.likes, isLiked]);
 
   return (
     <>
@@ -62,8 +88,8 @@ export default function FeedCards({
         style={{ backgroundColor: getRandomColor() }}
       >
         <div className={styles.feedHeader}>
-          {data.photo ? (
-            <img src={data.photo[0]} className={styles.feedUserImage} />
+          {user?.photo ? (
+            <img src={user.photo} className={styles.feedUserImage} />
           ) : (
             <div className={styles.userFirstLetter}>
               {data.username.split("")[0]}
@@ -80,44 +106,29 @@ export default function FeedCards({
           <div className={styles.feedDiscription}>{data.description}</div>
         )}
         <div className={styles.feed} style={{ backgroundColor: "transparent" }}>
-          {data.fileType === "image" ? (
-            data.fileName.map((element, itemIndex) => (
-              <img
-                src={element}
-                key={itemIndex}
-                className={styles.feedImage}
-                style={{ flex: itemIndex === 0 ? "1" : "0.5" }}
-              />
-            ))
-          ) : (
-            <video className={styles.feedImage}></video>
+          {data.fileName.map((element, itemIndex) => (
+            <img
+              src={element}
+              key={itemIndex}
+              className={styles.feedImage}
+              style={{ flex: itemIndex === 0 ? "1" : "0.5" }}
+            />
+          ))}
+          {data.fileType === "video" && (
+            <IconPlayerPlayFilled stroke={2} className={styles.playIcon} />
           )}
         </div>
         <div className={styles.actionButton}>
+          {likeButton}
           <button
-            className={clsx(styles.likeButton, {
-              [styles.isLiked]: isLiked,
-            })}
-            onClick={() => {
-              handlePostLike();
-            }}
+            className={styles.sendButton}
+            onClick={() => setShowShareModal(true)}
           >
-            {isLiked ? (
-              <IconHeartFilled className={styles.icon} />
-            ) : (
-              <IconHeart className={styles.icon} />
-            )}
-            {data.likes.length}
-          </button>
-          <button className={styles.sendButton} onClick={() => setShowShareModal(true)}>
             <IconSend stroke={2} className={styles.icon} /> Share
           </button>
         </div>
       </Cards>
-      <SharePostModal
-        open={showShareModal}
-        setOpen={setShowShareModal}
-      />
+      <SharePostModal open={showShareModal} setOpen={setShowShareModal} />
     </>
   );
 }

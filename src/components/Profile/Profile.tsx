@@ -25,7 +25,6 @@ export default function Profile() {
     if (user) void fetchDataByUser();
   }, [user]);
 
-  console.log({ currentUserData, user });
 
   return (
     <div className={styles.profileContainer}>

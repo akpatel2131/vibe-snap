@@ -20,6 +20,7 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import Resizer from "react-image-file-resizer";
+import { toast } from "react-toastify";
 
 // Define the type for the user object (customize according to your user data structure)
 
@@ -78,130 +79,84 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [fileType, setFileType] = useState<string>("");
   const [postData, setPostData] = useState<FeedData[]>([]);
 
-  const generateVideoThumbnail = useCallback(
-    (file: File): Promise<string | null> => {
-      return new Promise((resolve) => {
-        const video = document.createElement("video");
-        video.src = URL.createObjectURL(file);
-        video.crossOrigin = "anonymous";
-
-        video.onloadeddata = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-
-          const ctx = canvas.getContext("2d");
-          if (ctx) {
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL("image/png"));
-          } else {
-            resolve(null);
-          }
-          URL.revokeObjectURL(video.src);
-        };
-
-        video.onerror = () => {
-          resolve(null);
-        };
-      });
-    },
-    []
-  );
+  const generateVideoThumbnail = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const videoElement = document.createElement("video");
+      const canvasElement = document.createElement("canvas");
+      const context = canvasElement.getContext("2d");
+  
+      if (!context) {
+        reject("Canvas context not available.");
+        return;
+      }
+  
+      videoElement.src = URL.createObjectURL(file);
+      videoElement.muted = true;
+  
+      videoElement.onloadeddata = () => {
+        // Set canvas dimensions to video frame
+        canvasElement.width = videoElement.videoWidth / 2; // Reduce size
+        canvasElement.height = videoElement.videoHeight / 2;
+  
+        // Draw the first frame of the video onto the canvas
+        context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+  
+        // Convert canvas content to a Base64 image
+        const thumbnailBase64 = canvasElement.toDataURL("image/jpeg", 0.7); // Adjust quality
+        resolve(thumbnailBase64);
+      };
+  
+      videoElement.onerror = (error: any) => {
+        reject(`Error loading video: ${error.message}`);
+      };
+    });
+  };
+  
 
   const handleFileChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
-      if (files) {
-        const fileUrls: string[] = [];
-        Array.from(files).forEach((file) => {
-          setFileType(file.type);
-          if (file.type.startsWith("image/")) {
-            const fileReader = new FileReader();
-            fileReader.onload = () => {
-              if (fileReader.result) {
-                fileUrls.push(fileReader.result.toString());
-                setSelectedFiles((prev) => [
-                  ...prev,
-                  fileReader.result!.toString(),
-                ]);
-              }
-            };
-            fileReader.readAsDataURL(file);
-          } else if (file.type.startsWith("video/")) {
-            generateVideoThumbnail(file).then((thumbnail) => {
-              console.log({ thumbnail });
+      if (!files) {
+        console.error("No files selected.");
+        return;
+      }
+  
+      Array.from(files).forEach((file) => {
+        setFileType(file.type);
+  
+        // Handle image files
+        if (file.type.startsWith("image/")) {
+          const fileReader = new FileReader();
+          fileReader.onload = () => {
+            if (fileReader.result) {
+              setSelectedFiles((prev) => [
+                ...prev,
+                fileReader.result!.toString(),
+              ]);
+            }
+          };
+          fileReader.readAsDataURL(file);
+  
+          // Handle video files
+        } else if (file.type.startsWith("video/")) {
+          // Use `generateVideoThumbnail` to create a thumbnail
+          generateVideoThumbnail(file)
+            .then((thumbnail) => {
               if (thumbnail) {
                 setSelectedFiles((prev) => [...prev, thumbnail]);
               }
+            })
+            .catch((error) => {
+              console.error("Error generating video thumbnail:", error);
             });
-          }
-        });
-      }
+        } else {
+          console.error("Unsupported file type:", file.type);
+        }
+      });
     },
-    [generateVideoThumbnail, setFileType, setSelectedFiles]
+    [setFileType, setSelectedFiles]
   );
-
-  // const uploadImageToStorage = useCallback(
-  //   async (file: File, path: string): Promise<string> => {
-  //     try {
-  //       const storage = getStorage();
-  //       const storageRef = ref(storage, `${path}/${file.name}`); // Use file name in the path
-  //       await uploadBytes(storageRef, file); // Upload the file to Firebase Storage
-  //       const downloadURL = await getDownloadURL(storageRef); // Get the public URL
-  //       return downloadURL; // Return the URL for Firestore or state
-  //     } catch (error) {
-  //       console.error("Error uploading image to Firebase Storage:", error);
-  //       throw error;
-  //     }
-  //   },
-  //   []
-  // );
-
-  // const handleProfileImageUpload = useCallback(
-  //   async (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
-  //     const files = event.target.files;
-
-  //     if (!files) {
-  //       console.error("No files selected.");
-  //       return;
-  //     }
-
-  //     // Upload each file
-  //     for (const file of Array.from(files)) {
-  //       if (!file.type.startsWith("image/")) {
-  //         console.error("File is not an image.");
-  //         return;
-  //       }
-
-  //       try {
-  //         // Upload image to Firebase Storage based on type
-  //         const filePath =
-  //           type === "profile"
-  //             ? `users/${user?.userId}/profile`
-  //             : `users/${user?.userId}/bio`;
-  //         const downloadURL = await uploadImageToStorage(file, filePath);
-
-  //         // Update user object based on the type
-  //         if (type === "profile" && user) {
-  //           setUser({
-  //             ...user,
-  //             photo: downloadURL,
-  //           });
-  //         } else if (type === "bio" && user) {
-  //           setUser({
-  //             ...user,
-  //             bio_photo: downloadURL,
-  //           });
-  //         }
-
-  //         console.log(`${type} image uploaded successfully.`);
-  //       } catch (error) {
-  //         console.error(`Error uploading ${type} image:`, error);
-  //       }
-  //     }
-  //   },
-  //   [user]
-  // );
+  
 
 const handleProfileImageUpload = useCallback(
   (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
@@ -263,14 +218,12 @@ const handleProfileImageUpload = useCallback(
       if (userSnap.exists()) {
         // If the document exists, return its data
         const userData = userSnap.data();
-        console.log("User Data:", userData);
         return userData;
       } else {
-        console.log("No such user found!");
         return null;
       }
     } catch (error) {
-      console.error("Error fetching user by UUID:", error);
+      toast.error("There is some issue from our side. Please try later");
       throw error;
     }
   }, []);
@@ -289,14 +242,12 @@ const handleProfileImageUpload = useCallback(
       const userDoc = await getDoc(userDocRef);
 
       if (userDoc.exists()) {
-        console.log("User data retrieved:", userDoc.data());
         return userDoc.data() as UserData; // Return user data
       } else {
-        console.error("No user found with the given ID.");
         return null;
       }
     } catch (error) {
-      console.error("Error fetching user data: ", error);
+      toast.error("There is some issue from our side. Please try later");
       return null;
     }
   }, []);
@@ -311,12 +262,9 @@ const handleProfileImageUpload = useCallback(
             userId: id,
             createdAt: new Date().toISOString(),
           });
-          console.log("Data added successfully!");
-        } else {
-          console.error("No user is logged in");
         }
       } catch (error) {
-        console.error("Error adding document: ", error);
+        toast.error("There is some issue from our side. Please try later");
       }
     },
     [user]
@@ -334,12 +282,9 @@ const handleProfileImageUpload = useCallback(
             ...data,
             updatedAt: new Date().toISOString(), // Track the update timestamp
           });
-          console.log("User data updated successfully!");
-        } else {
-          console.error("No user is logged in");
-        }
+        } 
       } catch (error) {
-        console.error("Error updating document: ", error);
+        toast.error("There is some issue from our side. Please try later");
       }
     },
     [user]
@@ -361,12 +306,10 @@ const handleProfileImageUpload = useCallback(
           };
 
           await addDoc(collection(db, "posts"), newPost);
-          console.log("Post added successfully!");
-        } else {
-          console.error("No user is logged in");
+          toast.success("Post added successfully!");
         }
       } catch (error) {
-        console.error("Error adding post: ", error);
+        toast.error("There is some issue from our side. Please try later");
       }
     },
     [fetchUserByUUID, user]
@@ -379,18 +322,15 @@ const handleProfileImageUpload = useCallback(
       querySnapshot.forEach((doc) => {
         posts.push({ docId: doc.id, ...doc.data() });
       });
-      console.log("All Posts:", posts);
       return posts as FeedData[];
     } catch (error) {
-      console.error("Error fetching all posts: ", error);
+      toast.error("There is some issue from our side. Please try later");
     }
   }, []);
 
   const fetchPostsByUser = useCallback(async () => {
     try {
-      console.log({ user });
       const userId = user?.userId;
-      console.log({ userId });
       if (!userId) {
         return [];
       }
@@ -398,42 +338,40 @@ const handleProfileImageUpload = useCallback(
         collection(db, "posts"),
         where("userId", "==", userId)
       );
-      console.log({ postsQuery });
       const querySnapshot = await getDocs(postsQuery);
 
-      console.log({ querySnapshot });
       const posts: object[] = [];
       querySnapshot.forEach((doc) => {
         posts.push({ docId: doc.id, ...doc.data() });
       });
-      console.log("Posts by User:", posts);
       return posts as FeedData[];
     } catch (error) {
-      console.error("Error fetching posts by user: ", error);
+      toast.error("There is some issue from our side. Please try later");
     }
   }, [user]);
 
   const handleLikes = useCallback(
     async (postId: string, likes: string[]) => {
       try {
-        console.log("ref");
         const postRef = doc(db, "posts", postId);
         const currentUserId = user?.userId;
-        console.log({ currentUserId });
         if (!currentUserId) return;
         if (likes.includes(currentUserId)) {
           await updateDoc(postRef, {
             likes: arrayRemove(currentUserId),
           });
-          const data = postData.map((item) => {
+          const data = [];
+          for (let i = 0; i < postData.length; i++) {
+            const item = postData[i];
             if (item.docId === postId) {
-              return {
+              data.push({
                 ...item,
-                likes: item.likes.filter((id) => id !== currentUserId),
-              };
+                likes: [...item.likes.filter((id) => id !== currentUserId)],
+              });
+            } else {
+              data.push({...item});
             }
-            return item;
-          });
+          }
 
           setPostData(data);
         } else {
@@ -441,23 +379,26 @@ const handleProfileImageUpload = useCallback(
             likes: arrayUnion(currentUserId),
           });
 
-          const data = postData.map((item) => {
+          const data = [];
+          for (let i = 0; i < postData.length; i++) {
+            const item = postData[i];
             if (item.docId === postId) {
-              return {
+              data.push({
                 ...item,
                 likes: [...item.likes, currentUserId],
-              };
+              });
+            } else {
+              data.push({...item});
             }
-            return item;
-          });
+          }
 
           setPostData(data);
         }
       } catch (error) {
-        console.error("Error updating likes: ", error);
+        toast.error("There is some issue from our side. Please try later");
       }
     },
-    [user]
+    [user, postData]
   );
 
   const methods = {

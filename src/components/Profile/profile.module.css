@@ -48,7 +48,7 @@
 }
 
 .userFeedBox {
-  max-width: 160px;
+  max-width: var(--ye-width-small);
   height: auto;
   position: relative;
 }
@@ -72,16 +72,16 @@
 }
 
 .icon {
-  width: 16px;
-  height: 16px;
+  width: var(--ye-font-size-normal);
+  height: var(--ye-font-size-normal);
 }
 
 .pagesNumber {
   position: absolute;
   right: var(--ye-font-size-tiny);
   top: var(--ye-font-size-tiny);
-  color: #fff;
-  background-color: #000;
+  color: var(--color-canvas);
+  background-color: var(--color-ink);
   padding: var(--ye-spacing-rem-tiny) var(--ye-spacing-rem-small);
   border-radius: var(--ye-radius-huge);
   font-size: var(--ye-font-size-xsmall);

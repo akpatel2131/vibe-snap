@@ -21,8 +21,6 @@ export default function EditProfile() {
         bio_discription: biotext,
         username: name,
       };
-
-      console.log({ data });
       await updateUserData(data);
       setUser(data);
       navigate("/profile");

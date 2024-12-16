@@ -1,5 +1,5 @@
 .card {
-    max-width: 350px;
+    max-width: var(--ye-width-large);
     padding: var(--ye-spacing-rem-small);
     box-shadow: rgb(149 157 165 / 20%) 0 8px 24px;
   border-radius: var(--ye-radius-normal);

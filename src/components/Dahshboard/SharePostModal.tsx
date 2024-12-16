@@ -11,6 +11,8 @@ import reddit from "../../images/reddit.svg";
 import telegram from "../../images/telegram.svg";
 import twitter from "../../images/twitter.svg";
 import { Dispatch, SetStateAction } from "react";
+import { useContexData } from "../ContextApi/ContextApi";
+import { toast } from "react-toastify";
 
 const SOCIA_MEDIA = [
   {
@@ -48,14 +50,16 @@ const SOCIA_MEDIA = [
 ];
 
 export default function SharePostModal({
-  pageLink = "https://www.arnav/feed",
   open,
   setOpen,
 }: {
-  pageLink?: string;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
 }) {
+
+  const {user} = useContexData();
+
+  const pageLink = `https://www.${user?.username}/feed`
   const handleShare = (platform: string) => {
     let shareUrl = "";
     switch (platform) {
@@ -120,7 +124,10 @@ export default function SharePostModal({
           <div className={styles.linkTitle}>{pageLink}</div>
           <button
             className={styles.copyButton}
-            onClick={() => navigator.clipboard.writeText(pageLink)}
+            onClick={() => {
+              navigator.clipboard.writeText(pageLink)
+              toast.success("copied!")
+            }}
           >
             <img src={copy} />
           </button>

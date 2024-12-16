@@ -75,7 +75,7 @@ const CameraModal = () => {
             <img
               src={capturedImage}
               alt="Captured"
-              style={{ width: "100%", maxHeight: "300px" }}
+              style={{ width: "100%", maxHeight: "var(--ye-width-normal)" }}
             />
           ) : (
             <video

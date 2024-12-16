@@ -32,8 +32,6 @@ export default function UploadedFeed({
     setActiveIndex((prev) => (prev > 0 ? prev - 1 : 0));
   }, [selectedFiles, activeIndex, setSelectedFiles]);
 
-  console.log({selectedFiles})
-
   return (
     <div className={styles.uploadFeedContainer}>
       <div className={styles.imageWrapper}>

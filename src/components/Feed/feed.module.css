@@ -26,11 +26,11 @@
 }
 
 .createButton {
-    background-color: #000;
-    color: #fff;
+    background-color: var(--color-ink);
+    color: var(--color-canvas);
     border: none;
     padding: var(--ye-spacing-rem-xsmall) var(--ye-spacing-rem-large);
-    min-width: 300px;
+    min-width: var(--ye-width-normal);
     font-size: var(--ye-font-size-normal);
     border-radius: var(--ye-radius-huge);
     margin: 0 auto;

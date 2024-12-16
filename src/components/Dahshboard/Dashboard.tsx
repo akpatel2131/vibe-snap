@@ -1,55 +1,73 @@
 import { FeedData, useContexData } from "../ContextApi/ContextApi";
 import styles from "./dashboard.module.css";
-import {
-  IconPlus,
-} from "@tabler/icons-react";
+import { IconLogout, IconPlus } from "@tabler/icons-react";
 import userPhoto from "../../images/user-photo.svg";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import FeedCards from "./FeedCards";
-
-
+import { toast } from "react-toastify";
 
 export default function Dashboard() {
-  const { user, fetchAllPosts, handleLikes } = useContexData();
+  const { postData, user, fetchAllPosts, setPostData, setUser } = useContexData();
   const [loading, setLoading] = useState<boolean>(false);
-  const [postData, setPostData] = useState<FeedData[]>();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if(!localStorage.getItem("userId")) {
+      navigate("/login")
+    }
+  },[localStorage])
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetchAllPosts();
 
-      console.log({ response });
-      setPostData(response);
+      setPostData(response as FeedData[]);
     } catch (error: any) {
-      console.log("getting error while creating post", error.message);
+      toast.error("There is some issue from our side. Please try later");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => void fetchData(), []);
+  const handleLogout = useCallback(()=> {
+    localStorage.clear();
+    setUser(null);
+    navigate("/login")
+  },[])
 
+  useEffect(() => void fetchData(), []);
 
   return (
     <div className={styles.dashboardContainer}>
       <div className={styles.topNav}>
-        <button className={styles.userInfo} onClick={() => navigate("/profile")}>
+        <button
+          className={styles.userInfo}
+          onClick={() => navigate("/profile")}
+        >
           <img src={user?.photo || userPhoto} className={styles.userPhoto} />
           <div>
             <div className={styles.welcomeNote}>Welcome Back</div>
             <div className={styles.username}>{user?.username}</div>
           </div>
         </button>
-        <button
-          className={styles.createButton}
-          onClick={() => navigate("/create-post")}
-        >
-          <IconPlus stroke={2} />
-          Create
-        </button>
+        <div className={styles.buttonContainer}>
+          <button
+            className={styles.createButton}
+            onClick={() => navigate("/create-post")}
+          >
+            <IconPlus stroke={2} />
+            Create
+          </button>
+          <button
+            className={styles.createButton}
+            onClick={handleLogout}
+          >
+            <IconLogout stroke={2} />
+            Logout
+          </button>
+        </div>
       </div>
       <div className={styles.feeds}>
         <div className={styles.feedTitle}>Feeds</div>
